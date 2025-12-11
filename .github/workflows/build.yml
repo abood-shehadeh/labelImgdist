@@ -15,10 +15,10 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4  # UPDATED to v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5 # UPDATED to v5
       with:
         python-version: '3.10'
 
@@ -41,7 +41,7 @@ jobs:
         pyinstaller --name "LabelImg" --onedir --windowed --noconfirm --clean --hidden-import=lxml --hidden-import=libs --hidden-import=libs.resources --hidden-import=libs.shape --hidden-import=libs.canvas --add-data "data:data" --add-data "libs:libs" labelImg.py
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4 # UPDATED to v4 (This fixes your error)
       with:
         name: LabelImg-${{ matrix.os }}
         path: dist/LabelImg

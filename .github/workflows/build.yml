@@ -1,0 +1,47 @@
+name: Build LabelImg
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt
+
+    # WINDOWS BUILD STEP
+    - name: Build with PyInstaller (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        pyinstaller --name "LabelImg" --onedir --windowed --noconfirm --clean --hidden-import=lxml --hidden-import=libs --hidden-import=libs.resources --hidden-import=libs.shape --hidden-import=libs.canvas --add-data "data;data" --add-data "libs;libs" labelImg.py
+
+    # LINUX/MAC BUILD STEP (Different separator ':')
+    - name: Build with PyInstaller (Linux/Mac)
+      if: runner.os != 'Windows'
+      run: |
+        pyinstaller --name "LabelImg" --onedir --windowed --noconfirm --clean --hidden-import=lxml --hidden-import=libs --hidden-import=libs.resources --hidden-import=libs.shape --hidden-import=libs.canvas --add-data "data:data" --add-data "libs:libs" labelImg.py
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: LabelImg-${{ matrix.os }}
+        path: dist/LabelImg
